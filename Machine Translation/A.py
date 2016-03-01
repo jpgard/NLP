@@ -1,7 +1,6 @@
 import nltk
-from nltk.align import IBMModel1, IBMModel2
+from nltk.align import IBMModel1, IBMModel2, AlignedSent
 from nltk.corpus import comtrans
-from nltk.align import AlignedSent
 
 # TODO: Initialize IBM Model 1 and return the model.
 def create_ibm1(aligned_sents):
@@ -17,7 +16,6 @@ def create_ibm2(aligned_sents):
     
     return ibm2
     
-    
 # TODO: Compute the average AER for the first n sentences
 #       in aligned_sents using model. Return the average AER.
 def compute_avg_aer(aligned_sents, model, n):
@@ -31,11 +29,7 @@ def compute_avg_aer(aligned_sents, model, n):
         results.append(AER)
     
     return float(sum(results))/float(len(results))
-
-#     pass    
-    
-    
-    
+   
 # TODO: Computes the alignments for the first 20 sentences in
 #       aligned_sents and saves the sentences and their alignments
 #       to file_name. Use the format specified in the assignment.
@@ -51,8 +45,7 @@ def save_model_output(aligned_sents, model, file_name):
         file.write(str(newsent.alignment) + '\n')
         file.write('\n')
     
-    file.close()
-        
+    file.close()     
 
 def main(aligned_sents):
     ibm1 = create_ibm1(aligned_sents)

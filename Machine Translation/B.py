@@ -1,7 +1,5 @@
-import nltk
-import A
+import A, nltk, sys
 from collections import defaultdict
-import sys
 from nltk.align import AlignedSent
 
 class BerkeleyAligner():
@@ -21,7 +19,6 @@ class BerkeleyAligner():
         m = len(align_sent.mots)
         l = len(align_sent.words)
         
-        
         for j, en_word in enumerate(align_sent.words):
             
             # Initialize the maximum probability with Null token
@@ -32,12 +29,8 @@ class BerkeleyAligner():
                 max_align_prob = max(max_align_prob,
                     (t[(en_word, g_word)]*q[(i,j,m,l)], i), (t[(g_word,en_word)]*q[(j, i,l,m)], i))
 
-
             alignment.append((j, max_align_prob[1]))
-        
-        
-#         import pdb; pdb.set_trace()
-        
+             
         return AlignedSent(align_sent.words, align_sent.mots, alignment)
         
     
@@ -45,9 +38,7 @@ class BerkeleyAligner():
     # translation and distortion parameters as a tuple.
     def train(self, aligned_sents, num_iters):
         t = defaultdict(float)
-        q = defaultdict(float)
-        
-        
+        q = defaultdict(float)   
         
         e_targetwords = defaultdict(set)
         g_targetwords = defaultdict(set)
@@ -58,12 +49,10 @@ class BerkeleyAligner():
             e_sent = sent.words
             g_sent = sent.mots
             
-            for e in e_sent: #english sentence: add each word to counts; add targetwords to relevant entry
-                
+            for e in e_sent: #english sentence: add each word to counts; add targetwords to relevant entry   
                 g_targetwords[e].update(g_sent)
                 
-            for g in g_sent: #german sentence: add each word to counts; add targetwords to relevant entry
-                
+            for g in g_sent: #german sentence: add each word to counts; add targetwords to relevant entry 
                 e_targetwords[g].update(e_sent)
                 
         for sentence in aligned_sents:
@@ -80,7 +69,6 @@ class BerkeleyAligner():
                     q[(i,j,m,l)] = float(1)/float(m+1)
         
         #initialization complete.
-        
         
         for S in range(num_iters):
             c = defaultdict(float)
@@ -117,7 +105,6 @@ class BerkeleyAligner():
                         c[(i,l,m)] += d
                         c[(j,m,l)] += d
         
-            
             for sentence in aligned_sents:
                 for e in sentence.words:
                     for f in sentence.mots:
@@ -130,20 +117,12 @@ class BerkeleyAligner():
                         q[(j,i,l,m)] = c[(j,i,l,m)]/c[(i,l,m)]
                         q[(i,j,m,l)] = c[(i,j,m,l)]/c[(j,m,l)]
                                                
-        
         return (t,q)
 
 def main(aligned_sents):
     ba = BerkeleyAligner(aligned_sents, 10)
     A.save_model_output(aligned_sents, ba, "ba.txt")
     avg_aer = A.compute_avg_aer(aligned_sents, ba, 50)
-    
-    #start inserted test code
-#     print ba.t
-#     print ba.q
-#     for sent in aligned_sents:
-#         ba.align(sent)
-    #end inserted test code; UNCOMMENT below when model is complete
     
     print ('Berkeley Aligner')
     print ('---------------------------')

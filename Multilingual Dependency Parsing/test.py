@@ -15,11 +15,7 @@ if __name__ == '__main__':
         tp = TransitionParser(Transition, FeatureExtractor)
         tp.train(subdata)
         tp.save('swedish.model')
-
         testdata = dataset.get_swedish_test_corpus().parsed_sents()
-        
-        #following line changed FROM: tp = TransitionParser.load('badfeatures.model')
-        #TO: tp = TransitionParser.load('swedish.model')
         tp = TransitionParser.load('swedish.model')
 
         parsed = tp.parse(testdata)

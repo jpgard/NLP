@@ -33,9 +33,6 @@ class Transition(object):
         
         conf.arcs.append((idx_wj, relation, idx_wi))
         
-        # raise NotImplementedError('Please implement left_arc!')
-        # return -1
-
     @staticmethod
     def right_arc(conf, relation):
         """
@@ -44,8 +41,6 @@ class Transition(object):
         """
         if not conf.buffer or not conf.stack:
             return -1
-
-        # You get this one for free! Use it as an example.
 
         idx_wi = conf.stack[-1]
         idx_wj = conf.buffer.pop(0)
@@ -68,10 +63,6 @@ class Transition(object):
                 return
         
         return -1
-        
-        
-        # raise NotImplementedError('Please implement reduce!')
-        # return -1
 
     @staticmethod
     def shift(conf):
@@ -84,6 +75,4 @@ class Transition(object):
             
         idx_wi = conf.buffer.pop(0)
         conf.stack.append(idx_wi)
-        
-        # raise NotImplementedError('Please implement shift!')
-        # return -1
+

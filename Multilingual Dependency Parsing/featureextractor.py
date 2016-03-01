@@ -36,9 +36,7 @@ class FeatureExtractor(object):
                     left_most = wj
                     dep_left_most = r
         return dep_left_most, dep_right_most
-    
-    
-    
+
     
     @staticmethod
     def extract_features(tokens, buffer, stack, arcs):
@@ -54,7 +52,7 @@ class FeatureExtractor(object):
         """
 
         """
-        Think of some of your own features here! Some standard features are
+        Implementation of features below based on some standard features as
         described in Table 3.2 on page 31 of Dependency Parsing by Kubler,
         McDonald, and Nivre
 
@@ -69,13 +67,9 @@ class FeatureExtractor(object):
             # print("This is not a very good feature extractor!")
             printed = True
 
-        # an example set of features:
         if stack:
             stack_idx0 = stack[-1]
             token = tokens[stack_idx0]
-            
-            # import pdb; pdb.set_trace()
-#             print token
             
             if FeatureExtractor._check_informative(token['word'], True):
                 result.append('STK_0_FORM_' + token['word'])
@@ -98,11 +92,6 @@ class FeatureExtractor(object):
                 postag = token['tag']
                 result.append('STK_0_POSTAG_' + postag)
                 
-            # coarse POS tag of stack[0]
-#             if 'ctag' in token and FeatureExtractor._check_informative(token['ctag']):
-#                 cpostag = token['ctag']
-#                 result.append('STK_0_CPOSTAG_' + cpostag)
-                
             # STK_0_LEMMA_ [lemma or base form of word on top of stack] 
             if 'lemma' in token and FeatureExtractor._check_informative(token['lemma']):
                 lemma = token['lemma']
@@ -114,10 +103,6 @@ class FeatureExtractor(object):
             stack_idx1 = stack[-2]
             token = tokens[stack_idx1]
             
-#             if 'word' in token and FeatureExtractor._check_informative(token['word']):
-#                 form = token['word']
-#                 result.append('STK_1_FORM_' + form)
-            
             if 'tag' in token and FeatureExtractor._check_informative(token['tag']):
                 tag = token['tag']
                 result.append('STK_1_POSTAG_' + tag)
@@ -125,12 +110,7 @@ class FeatureExtractor(object):
             if 'lemma' in token and FeatureExtractor._check_informative(token['lemma']):
                 lemma = token['lemma']
                 result.append('STK_1_LEMMA_' + lemma)
-                
-#             if 'feats' in token and FeatureExtractor._check_informative(token['feats']):
-#                 feats = token['feats'].split("|")
-#                 for feat in feats:
-#                     result.append('STK_1_FEATS_' + feat)
-        
+               
         if len(stack) > 2:
             stack_idx2 = stack[-3]
             token = tokens[stack_idx2]

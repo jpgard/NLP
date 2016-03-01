@@ -1,8 +1,4 @@
-import math
-import nltk
-import time
-
-#added by JG - need for defaultdict
+import math, nltk, time
 from collections import defaultdict
 
 # Constants to be used by you when you fill the functions
@@ -88,7 +84,6 @@ def q1_output(unigrams, bigrams, trigrams, filename):
 
     outfile.close()
 
-
 # TODO: IMPLEMENT THIS FUNCTION
 # Calculates scores (log probabilities) for every sentence
 # ngram_p: python dictionary of probabilities of uni-, bi- and trigrams.
@@ -164,7 +159,6 @@ def linearscore(unigrams, bigrams, trigrams, corpus):
                 scores.append(MINUS_INFINITY_SENTENCE_LOG_PROB)
                 continue
         scores.append(sentence_p)
-    
     
     return scores
 

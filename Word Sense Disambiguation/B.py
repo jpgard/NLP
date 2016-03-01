@@ -1,23 +1,16 @@
-import A
+import A, nltk, string, math, sys, nltk.tag
 from sklearn.feature_extraction import DictVectorizer
+from sklearn.feature_selection import SelectKBest, chi2
 from collections import defaultdict, Counter
-import nltk
-import string
-from sklearn import svm
-from sklearn import neighbors
+from sklearn import svm, neighbors
 from nltk.corpus import stopwords
-import math
 from nltk.corpus import wordnet as wn
-import sys
 from nltk.data import load
-import nltk.tag
 from nltk.stem.snowball import SnowballStemmer
-from sklearn.feature_selection import SelectKBest
-from sklearn.feature_selection import chi2
 
 
 
-# You might change the window size
+# Adjustable window size parameter
 window_size = 3
 
 # B.1.a,b,c,d
@@ -53,88 +46,27 @@ def extract_features(data):
         _POS_TAGGER = 'taggers/maxent_treebank_pos_tagger/english.pickle'
         tagger = load(_POS_TAGGER)
         sent_detector = nltk.data.load('tokenizers/punkt/english.pickle')
-        
-        #first pass for relevancy score counts
-#         
-#         for inst in data:
-#             
-#             instance_id = inst[0]
-#             lcontext = inst[1]
-#             head = inst[2]
-#             rcontext = inst[3]
-#             sense_id = inst[4]
-#             
-#             left_context_all = nltk.word_tokenize(lcontext)
-#             left_context_tokens = [token for token in left_context_all if not token in string.punctuation] #and not token in stopwords.words('english')
-#             left_context_tokens = left_context_tokens[-window_size:]
-#             
-#             right_context_all = nltk.word_tokenize(rcontext)
-#             right_context_tokens = [token for token in right_context_all if not token in string.punctuation] # and not token in stopwords.words('english')
-#             right_context_tokens = right_context_tokens[0:window_size]
-#         
-#             context = left_context_tokens + right_context_tokens 
-#             
-#             
-#             # counts for relevance score
-#             
-#             window_size=5
-#        
-#             left =left_context_all[(-window_size):]
-#             right=right_context_all[0:window_size]
-#        
-#             unique_context= set(left+right)
-#        
-#             for item in unique_context:
-#             if item not in nc.keys():
-#                nc[item]=1
-#            
-#             else:
-#                 nc[item]=nc[item]+1
-#            
-#            if sense_id not in nsc.keys():
-#                nsc[sense_id]={}
-#            
-#            if item not in nsc[sense_id].keys():
-#                nsc[sense_id][item]=1
-#            
-#            else:
-#                nsc[sense_id][item] +=1
-#             
-#  
-        #second pass, now using counts to compute relevance score
-        
+     
         for inst in data:
         
             instance_id = inst[0]
             lcontext = inst[1]
             head = inst[2]
             rcontext = inst[3]
-            sense_id = inst[4]
-        
-                
+            sense_id = inst[4]         
             features[instance_id] = {}
-            
-            
         
             if instance_id and sense_id: 
                 labels[instance_id] = sense_id
         
             left_context_all = nltk.word_tokenize(lcontext)
-            left_context_tokens = [token for token in left_context_all if not token in string.punctuation] #and not token in stopwords.words('english')
+            left_context_tokens = [token for token in left_context_all if not token in string.punctuation] 
             left_context_tokens = left_context_tokens[-window_size:]
-            
             right_context_all = nltk.word_tokenize(rcontext)
-            right_context_tokens = [token for token in right_context_all if not token in string.punctuation] # and not token in stopwords.words('english')
+            right_context_tokens = [token for token in right_context_all if not token in string.punctuation]
             right_context_tokens = right_context_tokens[0:window_size]
-        
             context = left_context_tokens + right_context_tokens 
             
-            
-            
-            
-            
-    #         instance_windowtokens[instance_id] = context
-        
             #surrounding words, no stopwords or punctuation, with stemming
         
             for i in range(-3,0):
@@ -219,8 +151,6 @@ def extract_features(data):
                     features[instance_id]['w-1_syn_' + str(i)] = ''
                     i += 1
         
-        
-        
             #synset - top 3 synonyns of w1
             try:
                 syns = wn.synsets(right_context_tokens[0])
@@ -237,9 +167,6 @@ def extract_features(data):
             
             #combine contexts and head, perform sentence segmentation, and tag parts of speech
 
-#             head_index = len(nltk.word_tokenize(lcontext)) #for finding head later, check using print statement
-#             full_context = lcontext.strip() + ' ' + head.strip() + ' ' + rcontext.strip()
-#             sentences = sent_detector.tokenize(full_context)
             POStokens = left_context_all[-6:] + [head] + right_context_all[0:5]
             tagged = tagger.tag(POStokens)
 
@@ -250,50 +177,6 @@ def extract_features(data):
     
                 features[instance_id]['pos' + str(i)] = tag[1]
                 i += 1        
-            
-            
-            # relevance score
-#             
-#             window_size=5
-#    
-#             left =left_context_tokens[(-1*window_size):]
-#             right= right_context_tokens[0:window_size]
-#    
-#    
-#             unique_context= set(left+right)
-#    
-#             score=[]
-#    
-#    
-#             for item in unique_context:
-#        
-#                 nsc_count=nsc[i[4]][item]
-#                 nsc_countbar=nc[item]-nsc_count
-#        
-#                if nsc_countbar==0:
-#                    score.append((10000,item))
-#        
-#                else:
-#                    score.append((float(math.log(float(nsc_count))-math.log(float(nsc_countbar))),item))
-# 
-#            score=sorted(score)
-#         
-#            # print score
-#    
-#            if len(score)>=1:
-#                features[i[0]]['relevance_1']=score[-1][1]
-# 
-#            if len(score)>=2:
-# 
-#                features[i[0]]['relevance_2']=score[-2][1]
-#    
-#            if len(score)>=3:
-#                features[i[0]]['relevance_3']=score[-3][1]
-#    
-#            if len(score)>=4:
-#                features[i[0]]['relevance_4']=score[-4][1]
-#         
-        
             
     #SPANISH LOOP
         
@@ -411,8 +294,6 @@ def extract_features(data):
                     features[instance_id]['w-1_syn_' + str(i)] = ''
                     i += 1
         
-        
-        
             #synset - top 3 synonyns of w1
             try:
                 syns = wn.synsets(right_context_tokens[0], lang = 'spa')
@@ -427,14 +308,10 @@ def extract_features(data):
                     features[instance_id]['w1_syn_' + str(i)] = ''
                     i += 1          
 
-
-
-
     #CATALAN LOOP
         
     if sys.argv[-1] == 'Catalan':
     
-        # print 'CATALAN'
         for inst in data:
         
             instance_id = inst[0]
@@ -459,8 +336,6 @@ def extract_features(data):
             right_context_tokens = right_context_tokens[0:window_size]
         
             context = left_context_tokens + right_context_tokens
-          
-    #         instance_windowtokens[instance_id] = context
         
             #surrounding words, no stopwords or punctuation
         
@@ -546,8 +421,6 @@ def extract_features(data):
                     features[instance_id]['w-1_syn_' + str(i)] = ''
                     i += 1
         
-        
-        
             #synset - top 3 synonyns of w1
             try:
                 syns = wn.synsets(right_context_tokens[0], lang = 'cat')
@@ -561,14 +434,6 @@ def extract_features(data):
                 for each in range(0,3):
                     features[instance_id]['w1_syn_' + str(i)] = ''
                     i += 1          
-    
-
-
-
-
-
-
-
     
     return features, labels
 
